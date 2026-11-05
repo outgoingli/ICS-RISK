@@ -12,6 +12,10 @@ ICS-RISK-private/
   lab_bundle/config/      graph / bindings / constraints / provenance
   lab_bundle/evidence/    本地核实的证据副本
   normal_02_request.json  历史回放输入（保留原时戳）
+  capture_unique/         新采集的原始来源与清单
+  extracted_unique/       从真实来源生成的图谱、报告与图外配置
+  observations_unique.json  按提取地址采集的原始只读报文
+  candidate_unique.json   与实测分离的未执行候选请求
   service.env             仅当前用户可读的服务配置
   records/                每次评估的输入、结果、证据路径
 ```
@@ -29,22 +33,22 @@ python -m ics_risk --bundle /private/lab_bundle --backend neo4j query
 python -m ics_risk --bundle /private/lab_bundle --backend neo4j evaluate --input /private/normal_02_request.json
 ```
 
-发布后读取图摘要及12节点14关系，重复发布应返回 unchanged。不要为了测试而删除线上边；缺边/数据库异常等情况在临时测试夹具验证。
+发布后核对所选包的图摘要及节点关系计数，重复发布应返回 unchanged。旧人工图是12节点14关系，本次来源提取图是20节点29关系，不能混用验收值。不要为了测试而删除线上边；缺边/数据库异常等情况在临时测试夹具验证。
 
 ## 常驻服务
 
 仓库提供 Dockerfile；现场也可用独立服务管理器运行主机 Python。容器镜像不包含真实证据或凭据。
 
 ```sh
-docker build -t ics-risk:0.1.0 .
+docker build -t ics-risk:0.2.0 .
 docker run -d --name ics-risk-app --restart unless-stopped \
   --network host --read-only --cap-drop ALL --security-opt no-new-privileges \
   --tmpfs /tmp:rw,noexec,nosuid,size=16m \
   --env-file /private/service.env \
-  -v /private/lab_bundle:/data/bundle:ro \
-  -v /private/normal_02_request.json:/data/example.json:ro \
+  -v /private/extracted_unique:/data/bundle:ro \
+  -v /private/candidate_unique.json:/data/example.json:ro \
   -v /private/records:/data/records:rw \
-  ics-risk:0.1.0 serve
+  ics-risk:0.2.0 serve
 ```
 
 环境中将 bundle/records/example 路径设为容器内对应路径，服务监听127.0.0.1:18081。镜像以UID/GID 1000运行；部署时根据实际账户匹配记录目录权限，可用`--user`覆盖。`--network host` 示例适用于 Linux 仿真主机。

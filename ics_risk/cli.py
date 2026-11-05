@@ -17,8 +17,23 @@ def parser():
     p.add_argument('--backend', choices=['json', 'neo4j'], default=os.environ.get('ICS_RISK_BACKEND', 'json'))
     p.add_argument('--records', type=Path, default=os.environ.get('ICS_RISK_RECORDS', str(ROOT / 'runtime/records')))
     commands = p.add_subparsers(dest='action', required=True)
-    commands.add_parser('validate', help='校验人工审定图谱及证据包')
+    commands.add_parser('validate', help='校验已生成图谱及证据包；校验本身不进行知识抽取')
     commands.add_parser('publish-graph', help='明确发布图版本到 Neo4j；这是唯一写库命令')
+    capture=commands.add_parser('capture',help='采集真实PLC源码、SCADA点位和I/O配置；在授权实验主机运行')
+    capture.add_argument('--output',type=Path,required=True)
+    extract=commands.add_parser('extract', help='从真实采集源码与配置提取语义并生成图谱；不读取人工 seed graph')
+    extract.add_argument('--capture',type=Path,required=True)
+    extract.add_argument('--policy-bundle',type=Path,required=True)
+    extract.add_argument('--output',type=Path,required=True)
+    extract.add_argument('--physical-field',default='outputs.liquid_level')
+    observe=commands.add_parser('collect', help='按提取地址有界读取PLC及仿真状态，保存原始报文；在实验主机运行')
+    observe.add_argument('--output',type=Path,required=True)
+    observe.add_argument('--count',type=int,default=3)
+    prepare=commands.add_parser('prepare-request',help='以原始观测准备候选请求；不执行控制操作')
+    prepare.add_argument('--observations',type=Path,required=True)
+    prepare.add_argument('--candidate-raw',type=int,required=True)
+    prepare.add_argument('--output',type=Path,required=True)
+    prepare.add_argument('--mode',choices=['current','replay'],default='replay')
     q = commands.add_parser('query', help='查询点位语义、约束与依赖')
     q.add_argument('--point', default='point:level_sp')
     q.add_argument('--version')
@@ -32,6 +47,26 @@ def parser():
 
 
 def run(args):
+    if args.action=='capture':
+        from .acquisition import capture_sources
+        report=capture_sources(args.output,scada_base=os.environ['ICS_RISK_SCADA_BASE'],
+            scada_username=os.environ['ICS_RISK_SCADA_USER'],scada_password=os.environ['ICS_RISK_SCADA_PASSWORD'])
+        return {'complete':report['complete'],'sources':len(report['sources']),'issues':report['issues'],
+                'http_status':200 if report['complete'] else 503,'output':str(args.output)}
+    if args.action=='extract':
+        from .semantic.pipeline import build_extracted_bundle
+        return build_extracted_bundle(args.capture,args.policy_bundle,args.output,physical_field=args.physical_field)
+    if args.action=='collect':
+        from .semantic.observations import capture_for_bundle
+        report=capture_for_bundle(args.bundle,args.output,count=args.count)
+        return {'output':str(args.output),'samples':len(report['samples']),
+                'identity_verified':report['identity_verified'],'graph_version':report['graph_version']}
+    if args.action=='prepare-request':
+        from .semantic.observations import prepare_request
+        request=prepare_request(args.bundle,args.observations,args.candidate_raw,mode=args.mode)
+        with args.output.open('x',encoding='utf-8') as f:
+            json.dump(request,f,ensure_ascii=False,indent=2,allow_nan=False)
+        return {'output':str(args.output),'mode':args.mode,'candidate_executed':False}
     if args.action in {'validate', 'publish-graph'}:
         graph = build_graph(args.bundle)
         if args.action == 'publish-graph':

@@ -45,8 +45,31 @@ class RiskApplication:
         bindings_path = self.bundle_dir / "config" / "bindings.json"
         bindings = _strict_json(bindings_path.read_text(encoding="utf-8-sig")) if bindings_path.exists() else {}
         profile = bindings.get("bundle_profile")
-        self.bundle_profile = (profile if profile in ("synthetic_demo", "archived_lab_evidence")
+        self.bundle_profile = (profile if profile in ("synthetic_demo", "archived_lab_evidence", "source_extracted_lab_evidence")
                                else "unclassified")
+
+    def semantics(self):
+        """Return the recorded extraction evidence, without inferring its source."""
+        path = self.bundle_dir / "semantic_report.json"
+        unavailable = {"available": False, "method": "curated_graph_import",
+                       "notice": "尚未提供自动语义提取报告；已有节点边导入不能作为自动知识发现的证据。"}
+        if not path.exists():
+            return unavailable
+        try:
+            if path.resolve().parent != self.bundle_dir:
+                raise ValueError("Semantic report leaves the bundle")
+            report = _strict_json(path.read_text(encoding="utf-8-sig"))
+            if not isinstance(report, dict):
+                raise ValueError("Semantic report must be an object")
+            if report.get("graph_version", self.graph_version) != self.graph_version:
+                return {"available": False, "method": "unknown",
+                        "notice": "语义报告的图版本与当前配置不一致，不能用于声明当前图的构建方式。",
+                        "issues": [{"code": "semantic_report_graph_version_mismatch"}]}
+            return dict(report, available=True)
+        except (OSError, ValueError):
+            return {"available": False, "method": "unknown",
+                    "notice": "语义提取报告不可读取或格式无效，不能据此声明已完成自动提取。",
+                    "issues": [{"code": "semantic_report_unreadable"}]}
 
     def graph(self, version=None):
         version = version or self.graph_version
@@ -64,9 +87,18 @@ class RiskApplication:
             count = {"nodes": len(graph.get("nodes", [])), "edges": len(graph.get("edges", []))}
         except Exception:
             ready, count = False, {}
+        semantics = self.semantics()
+        known_methods = {"deterministic_source_extraction", "curated_graph_import"}
+        method = semantics.get("method")
+        construction = (method if semantics.get("available") and isinstance(method, str)
+                        and method in known_methods else "unknown")
         return {"status": "ready" if ready else "unavailable", "backend": self.backend,
                 "graph_version": self.graph_version, "graph": count,
                 "bundle_profile": self.bundle_profile,
+                "graph_construction": construction,
+                "semantic_report_available": semantics.get("available", False),
+                "semantic_source_kind": semantics.get("source_kind") if semantics.get("available") else None,
+                "capture_finished_at": semantics.get("capture_finished_at") if semantics.get("available") else None,
                 "scope": "pre_execution_constraint_assessment", "control_writes": False,
                 "trajectory_prediction": False}
 
@@ -200,6 +232,8 @@ def create_server(app, host="127.0.0.1", port=8080):
                     self._response(200, result)
                 elif path == "/api/example":
                     self._response(200, app.example())
+                elif path == "/api/semantics":
+                    self._response(200, app.semantics())
                 elif path == "/api/records":
                     self._response(200, {"records": app.records.list()})
                 elif path.startswith("/api/records/"):

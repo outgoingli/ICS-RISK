@@ -1,6 +1,8 @@
 # ICS-RISK
 
-面向 GRFICS / TenEast 液位设定值写请求的图谱驱动执行前约束评估系统。包含图谱构建、图谱查询、约束量化、评估 API、中文页面、记录与回放测试。
+面向 GRFICS / TenEast 液位设定值写请求的图谱驱动执行前约束评估系统。包含真实来源采集、限定语法的PLC数据流分析、I/O映射与图谱生成、图谱查询、约束量化、评估 API、中文页面和记录。
+
+旧版本的 `validate` / `publish-graph` 只是人工整理图谱的校验与导入，不能报告为自动构图。新增 `capture → extract → collect` 才是从真实源码、SCADA配置与原始观测获得知识和状态的流程。详见[真实数据语义提取](docs/source-extraction.md)与[现场验证记录](docs/source-verification.md)。
 
 当前版本不向 PLC/SCADA 下发控制指令，不预测过程轨迹，不把未核实规则当成物理安全边界。`INDETERMINATE` 是明确的评估结果，不是服务故障的代名词。
 
@@ -37,7 +39,9 @@ python -m ics_risk --bundle /path/to/private/lab_bundle --backend neo4j serve
 
 ```text
 ics_risk/
-  graph_build/       审定知识、证据验证与发布
+  acquisition/       真实源码/配置采集、有界协议只读观测
+  semantic/          PLC数据流、I/O语义提取、自动组装与观测适配
+  graph_build/       已生成图谱的结构、证据验证
   graph_query/       JSON / Neo4j 存储和语义查询
   quantification/    范围、幅度、间隔、前置条件计算
   service.py         HTTP 接口
@@ -49,6 +53,8 @@ tests/              独立用例、回归、服务与图后端测试
 docs/               架构、接口、证据和部署说明
 runtime/            私有证据和记录（不提交 Git）
 ```
+
+合成示例仅用于独立软件测试。研究实验必须使用可追溯的现场采集或既有真实归档，且保留未知语义与失败记录。不能把测试夹具、人工标签或软件测试通过率当成现场知识抽取准确率。
 
 详见 [架构与研究边界](docs/architecture.md)、[图谱模块](docs/graph.md)、[接口](docs/api.md)、[证据策略](docs/evidence-policy.md)、[部署](docs/deployment.md)。
 

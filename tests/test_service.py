@@ -75,6 +75,8 @@ class ServiceTests(unittest.TestCase):
         self.assertEqual(status, 200)
         self.assertFalse(json.loads(body)["control_writes"])
         self.assertEqual(json.loads(body)["bundle_profile"], "unclassified")
+        self.assertEqual(json.loads(body)["graph_construction"], "unknown")
+        self.assertFalse(json.loads(body)["semantic_report_available"])
         status, _, body = self.request("GET", "/api/graph?version=test-v1")
         self.assertEqual(json.loads(body), GRAPH)
 
@@ -135,6 +137,64 @@ class ServiceTests(unittest.TestCase):
         self.assertIn("frame-ancestors 'none'", headers["Content-Security-Policy"])
         self.assertIn("不下发 PLC 指令".encode(), body)
         self.assertNotIn(b"http://cdn", body)
+        self.assertIn(b'id="semantic-section"', body)
+        self.assertIn("图谱如何得到".encode(), body)
+        self.assertIn("合成数据只用于软件测试".encode(), body)
+
+    def test_semantics_missing_report_does_not_claim_extraction(self):
+        status, _, body = self.request("GET", "/api/semantics")
+        report = json.loads(body)
+        self.assertEqual(200, status)
+        self.assertFalse(report['available'])
+        self.assertEqual('curated_graph_import', report['method'])
+        self.assertEqual('unknown', self.app.health()['graph_construction'])
+
+    def test_source_report_is_returned_without_retiming_or_inventing_roles(self):
+        report = {'method': 'deterministic_source_extraction', 'source_kind': 'live_capture',
+                  'graph_version': 'test-v1', 'capture_finished_at': {'epoch': 123, 'utc': 'synthetic-time'},
+                  'selected_loop': {'pv': 'sensor', 'sp': 'target'},
+                  'variables': [{'role': 'feedback', 'symbol': 'sensor', 'plc_location': '%IW25',
+                                 'point_ids': [], 'origin_json_path': ['outputs', 'inventory'],
+                                 'evidence': [{'source': 'test.st', 'line_start': 7, 'line_end': 9}]}],
+                  'limitations': ['Synthetic API fixture; not field evidence.'], 'issues': []}
+        (self.root / 'semantic_report.json').write_text(json.dumps(report), encoding='utf-8')
+        status, _, body = self.request('GET', '/api/semantics')
+        self.assertEqual(200, status)
+        self.assertEqual(dict(report, available=True), json.loads(body))
+        health = self.app.health()
+        self.assertEqual('deterministic_source_extraction', health['graph_construction'])
+        self.assertEqual(report['capture_finished_at'], health['capture_finished_at'])
+        self.assertEqual('live_capture', health['semantic_source_kind'])
+
+    def test_report_mismatch_or_invalid_json_does_not_change_backend_readiness(self):
+        for report in ('{"method":"deterministic_source_extraction","graph_version":"other-v"}',
+                       'not-json', '[]'):
+            (self.root / 'semantic_report.json').write_text(report, encoding='utf-8')
+            health = self.app.health()
+            self.assertEqual('ready', health['status'])
+            self.assertEqual('unknown', health['graph_construction'])
+            self.assertFalse(health['semantic_report_available'])
+
+    def test_unknown_report_method_is_not_extraction(self):
+        for method in ('invented_method', ['deterministic_source_extraction']):
+            (self.root / 'semantic_report.json').write_text(json.dumps({'method': method}), encoding='utf-8')
+            self.assertEqual('unknown', self.app.health()['graph_construction'])
+
+    def test_extracted_profile_does_not_create_a_missing_report(self):
+        (self.root / 'config/bindings.json').write_text('{"bundle_profile":"source_extracted_lab_evidence"}', encoding='utf-8')
+        app = RiskApplication(self.root, self.repo, self.root / 'records', self.example,
+                              backend='test', evaluator_factory=EvaluatorFixture)
+        health = app.health()
+        self.assertEqual('source_extracted_lab_evidence', health['bundle_profile'])
+        self.assertEqual('unknown', health['graph_construction'])
+        self.assertFalse(app.semantics()['available'])
+        _, record = app.evaluate(copy.deepcopy(REQUEST))
+        self.assertEqual('source_extracted_lab_evidence', record['bundle_profile'])
+
+    def test_semantics_endpoint_uses_api_authentication(self):
+        self.app.token = 'test-only-token'
+        status, _, _ = self.request('GET', '/api/semantics')
+        self.assertEqual(401, status)
 
     def test_invalid_media_type_and_size_rejected(self):
         status, _, _ = self.request("POST", "/api/evaluate", "{}", {"Content-Type": "text/plain"})

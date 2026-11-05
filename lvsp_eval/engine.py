@@ -178,7 +178,7 @@ class Evaluator:
         variable = graph.unique(point, 'MAPS_TO')
         host = graph.unique(variable, 'HOSTED_BY') if variable else None
         loop = graph.unique(variable, 'IN_LOOP') if variable else None
-        if owner != binding.get('component_ref') or host != binding.get('component_ref'):
+        if owner != binding.get('exposing_component_ref', binding.get('component_ref')) or host != binding.get('component_ref'):
             fatal('component_binding_mismatch')
         if variable != binding.get('variable_ref') or loop != binding.get('loop_ref'):
             fatal('semantic_binding_mismatch')

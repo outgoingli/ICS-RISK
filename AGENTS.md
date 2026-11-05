@@ -2,6 +2,8 @@
 
 - Read README.md and docs/architecture.md before changing behavior.
 - Keep graph construction, graph queries, constraint computation, service and audit records separate.
+- Graph extraction must derive roles and mappings from captured PLC/SCADA/I/O sources. Never call a curated JSON import automatic extraction. Do not seed the graph with the expected semantic answer and report it as a discovery.
+- Preserve original captured bytes, wire requests/responses and acquisition windows. Unsupported semantics remain unknown. Synthetic fixtures only test software and are never experimental evidence.
 - Never add PLC/SCADA write operations to the evaluator or web service. Existing process recovery belongs to the separately qualified execution framework.
 - The graph has exactly five domain node types and six relationship types. No process values, thresholds, addresses or numeric properties belong in it. Storage identifiers and version strings are metadata.
 - Preserve evidence provenance and categories: implementation limit, research requirement, physical safety requirement. Unknown parameters stay unknown; no invented thresholds or aggregate safety score.

@@ -82,6 +82,38 @@ function showRecord(record) {
   el("evidence").textContent=pretty({input_issues:result.input_issues,evidence:result.evidence});
   el("raw-result").textContent=pretty(record);
 }
+function showSemantics(report) {
+  const automatic=report.available && report.method === "deterministic_source_extraction";
+  const imported=report.available && report.method === "curated_graph_import";
+  el("semantic-method").textContent=automatic?"源码语义提取":imported?"已有节点边导入":"无可核实的提取报告";
+  el("semantic-notice").textContent=report.notice || (automatic
+    ? "当前图有确定性源码提取报告。下面展示角色、通信映射与来源位置；语义仍受报告列出的支持范围和缺失证据限制。"
+    : imported?"当前报告声明使用预先整理的节点和边，不能称为从 PLC 或运行数据自动发现知识。"
+    : "未提供可用的自动提取报告，不能声明当前图已由源码自动构建。");
+  const capture=report.capture_finished_at;
+  const captureLabel=capture && typeof capture === "object" ? (capture.utc || pretty(capture)) : (capture || "未提供");
+  el("capture-time").textContent=`报告来源：${report.source_kind || "未标注"} · 采集完成时间：${captureLabel} · 图版本：${report.graph_version || "报告未标注"}`;
+  const rows=el("semantic-variables");rows.replaceChildren();
+  const variables=Array.isArray(report.variables)?report.variables:[];
+  for (const item of variables) {
+    const row=document.createElement("tr");
+    const origin=Array.isArray(item.origin_json_path)?item.origin_json_path.join("."):(item.origin_json_path||"未确定");
+    const points=Array.isArray(item.point_ids)?item.point_ids.join(" · "):(item.point_ids||"未绑定");
+    const role=item.role || (Array.isArray(item.roles)?item.roles.join(" · "):"未确定");
+    [role,`${item.symbol||"未确定"} / ${item.plc_location||"未确定"}`,points,origin].forEach(value=>row.append(textNode("td",value)));
+    const evidence=document.createElement("td"),details=document.createElement("details");
+    const refs=Array.isArray(item.evidence)?item.evidence:[];
+    details.className="semantic-evidence";details.append(textNode("summary",`${refs.length} 个证据位置`));
+    details.append(textNode("pre",pretty(refs)));evidence.append(details);row.append(evidence);rows.append(row);
+  }
+  if (!variables.length) {
+    const row=document.createElement("tr"),cell=textNode("td","当前报告没有可展示的变量语义。缺失信息不会自动补齐。");
+    cell.colSpan=5;row.append(cell);rows.append(row);
+  }
+  el("semantic-loop").textContent=pretty({selected_loop:report.selected_loop||null,observation_summary:report.observation_summary||null});
+  el("semantic-limitations").textContent=pretty({limitations:report.limitations||[],issues:report.issues||[]});
+  el("semantic-report").textContent=pretty(report);
+}
 async function refreshRecords() {
   const data=await api("/api/records"); const box=el("records");box.replaceChildren();
   if (!data.records.length) box.append(textNode("p","暂无评估记录。","muted"));
@@ -103,8 +135,10 @@ async function connect() {
       ? "当前配置：synthetic_demo（合成演示）。示例规则和数值不能作为真实现场放行依据。"
       : health.bundle_profile === "archived_lab_evidence"
         ? "当前配置：archived_lab_evidence（实验归档证据）。配置与示例均不代表实时现场状态。"
-        : "当前配置：unclassified（来源类型未标注或无法识别）。不能确认属于演示数据或实验归档，也不代表实时现场状态。";
-    showGraph(await api("/api/graph"));await refreshRecords();
+        : health.bundle_profile === "source_extracted_lab_evidence"
+          ? "当前配置：现场采集归档＋源码语义提取（非持续实时采集）。构建来源、采集时间和未知项见下方报告。"
+          : "当前配置：unclassified（来源类型未标注或无法识别）。不能确认属于演示数据或实验归档，也不代表实时现场状态。";
+    showSemantics(await api("/api/semantics"));showGraph(await api("/api/graph"));await refreshRecords();
     if (!el("request").value) await loadExample();el("message").textContent="";
   }catch(error){el("health").textContent="连接未就绪";el("message").textContent=error.message;}
 }

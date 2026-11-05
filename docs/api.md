@@ -27,8 +27,9 @@ serve(app, host="127.0.0.1", port=8080)
 | 方法和路径 | 作用 |
 | --- | --- |
 | `GET /` | 中文工作台，展示图谱、评估输入、逐项结果、证据和历史记录 |
-| `GET /api/health` | 当前后端、图版本、图是否可读、`bundle_profile`；不表示现场过程健康 |
+| `GET /api/health` | 当前后端、图版本、图是否可读、`bundle_profile`、报告中的图谱构建方式及采集时间；不表示现场过程健康 |
 | `GET /api/graph?version=...` | 读取指定版本的完整图快照；默认使用配置版本 |
+| `GET /api/semantics` | 读取当前 bundle 的语义提取报告、变量角色、原始生产字段、证据位置、限制及未知项 |
 | `GET /api/example` | 示例请求及“非当前实测”说明；保留原始时间戳 |
 | `POST /api/evaluate` | 使用指定图版本评估并保存记录 |
 | `GET /api/records` | 最近最多 50 条本地记录摘要 |
@@ -76,4 +77,29 @@ HTTP 200 表示评估记录已经产生，并不意味着请求获准执行。�
 
 记录在外部目录以 UUID 独占创建，包含原始输入和完整结果。记录目录应保留在实验环境，不提交公开仓库。当前文件存储为追加式应用行为，不是防篡改审计系统；具备文件权限的人仍可修改它。页面只提供“评估”，不提供 PLC 执行或恢复按钮。
 
-健康接口、页面和记录明确显示数据配置类型：`bindings.bundle_profile` 只有显式为 `synthetic_demo` 或 `archived_lab_evidence` 时，才分别标记合成演示或实验归档证据；缺少 bindings、缺少该字段或字段值无法识别时均标记 `unclassified`，不推断为归档或实时数据。图可读仅表示图后端就绪，不表示配置来源已核实。演示配置中的最小间隔规则仍未启用，因此其余四项通过时仍会返回评估不完整。
+健康接口、页面和记录明确显示数据配置类型：`bindings.bundle_profile` 显式为 `synthetic_demo`、`archived_lab_evidence`、`source_extracted_lab_evidence` 时，分别标记合成演示、实验归档证据、现场采集归档＋源码语义提取。缺少 bindings、缺少该字段或字段值无法识别时均标记 `unclassified`，不推断为归档或实时数据。现场采集归档不等于持续实时监测；合成数据只验证软件行为，不能作为实验结果或知识发现的证据。
+
+图可读仅表示图后端就绪，不表示配置来源已核实。演示配置中的最小间隔规则仍未启用，因此其余四项通过时仍会返回评估不完整。
+
+## 图谱构建来源与语义报告
+
+服务读取 `bundle/semantic_report.json`，不因为使用 Neo4j 或某个 profile 就推断“自动构图”。报告可包含：
+
+```json
+{
+  "method": "deterministic_source_extraction",
+  "source_kind": "live_capture",
+  "graph_version": "an explicitly identified graph version",
+  "capture_finished_at": {"epoch": 123, "utc": "synthetic example time"},
+  "selected_loop": {"pv": "observed_input", "sp": "candidate_target"},
+  "variables": [{"role": "feedback", "symbol": "observed_input", "plc_location": "%IW25", "point_ids": [], "origin_json_path": ["outputs", "inventory"], "evidence": []}],
+  "limitations": ["This JSON is a documentation example, not field evidence."],
+  "issues": []
+}
+```
+
+`GET /api/semantics` 保留报告原始字段并增加 `available: true`。其中 `live_capture` 描述文件当时的采集方式，不意味着现在仍在采集。报告中的时间不刷新为当前时间。报告若声明另一个图版本，则返回 `available: false` 与版本不一致说明；无效 JSON 同样不能作为提取证据。
+
+没有报告时，接口返回 `available: false`、`method: curated_graph_import` 及“未提供自动提取报告”的说明。此 fallback 是对既有节点边导入工作流的提示，不是发现了自动提取；健康接口的 `graph_construction` 此时为 `unknown`。只有可读取且匹配版本的报告明确声明已支持的方法，健康接口才报告相应 `graph_construction`，同时提供 `semantic_report_available`、`semantic_source_kind`、`capture_finished_at`。
+
+展示报告不等于独立证明语义正确。图谱构建模块负责来源摘要与规则前提验证，页面保留证据链和限制供审查。旧版预先整理节点边的导入不能改称自动知识发现。
