@@ -1,0 +1,5 @@
+SYNTHETIC DEMONSTRATION FIXTURE ONLY
+
+Synthetic quality specification: PLC sample age <=2 seconds and sequential sampling span <=0.9 seconds. The simulator has its separate 12-second observation-age bound.
+
+Not historical deployment evidence. Do not use this bundle for real command authorization.

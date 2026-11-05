@@ -1,0 +1,5 @@
+SYNTHETIC DEMONSTRATION FIXTURE ONLY
+
+Synthetic admission specification: candidate-current raw difference is at most 328, run=true, e_stop=false. These fixture values exercise the original prototype arithmetic; they are not plant safety bounds.
+
+Not historical deployment evidence. Do not use this bundle for real command authorization.

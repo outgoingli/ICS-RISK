@@ -1,0 +1,5 @@
+SYNTHETIC DEMONSTRATION FIXTURE ONLY
+
+Synthetic implementation identity placeholder. This document is not an archived executable or deployment attestation.
+
+Not historical deployment evidence. Do not use this bundle for real command authorization.

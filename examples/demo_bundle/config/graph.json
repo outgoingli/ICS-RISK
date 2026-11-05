@@ -1,0 +1,262 @@
+{
+  "schema_version": "1",
+  "nodes": [
+    {
+      "id": "component:plc",
+      "type": "Component",
+      "label": "SYNTHETIC DEMO: TenEast PLC",
+      "evidence_refs": [
+        "src:active_st",
+        "src:modbus_driver"
+      ]
+    },
+    {
+      "id": "component:simulator",
+      "type": "Component",
+      "label": "SYNTHETIC DEMO: TenEast simulator",
+      "evidence_refs": [
+        "src:lab_io"
+      ]
+    },
+    {
+      "id": "point:level_sp",
+      "type": "Point",
+      "label": "SYNTHETIC DEMO: Liquid-level setpoint communication point",
+      "evidence_refs": [
+        "src:point_api",
+        "src:modbus_driver"
+      ]
+    },
+    {
+      "id": "var:level_sp",
+      "type": "Variable",
+      "label": "SYNTHETIC DEMO: Liquid-level setpoint",
+      "evidence_refs": [
+        "src:active_st"
+      ]
+    },
+    {
+      "id": "var:run",
+      "type": "Variable",
+      "label": "SYNTHETIC DEMO: PLC automatic-output run state",
+      "evidence_refs": [
+        "src:active_st"
+      ]
+    },
+    {
+      "id": "var:e_stop",
+      "type": "Variable",
+      "label": "SYNTHETIC DEMO: Simulator emergency-stop state",
+      "evidence_refs": [
+        "src:collector",
+        "src:lab_io"
+      ]
+    },
+    {
+      "id": "loop:level",
+      "type": "ControlLoop",
+      "label": "SYNTHETIC DEMO: Liquid-level control loop",
+      "evidence_refs": [
+        "src:active_st"
+      ]
+    },
+    {
+      "id": "constraint:encoding_range",
+      "type": "Constraint",
+      "label": "SYNTHETIC DEMO: encoding range",
+      "evidence_refs": [
+        "src:active_st",
+        "src:point_api",
+        "src:policy_notes"
+      ]
+    },
+    {
+      "id": "constraint:step_limit",
+      "type": "Constraint",
+      "label": "SYNTHETIC DEMO: step limit",
+      "evidence_refs": [
+        "src:qualification_runner",
+        "src:qualification_config",
+        "src:policy_notes"
+      ]
+    },
+    {
+      "id": "constraint:run_required",
+      "type": "Constraint",
+      "label": "SYNTHETIC DEMO: run required",
+      "evidence_refs": [
+        "src:active_st",
+        "src:modbus_driver",
+        "src:policy_notes"
+      ]
+    },
+    {
+      "id": "constraint:e_stop_clear",
+      "type": "Constraint",
+      "label": "SYNTHETIC DEMO: e stop clear",
+      "evidence_refs": [
+        "src:qualification_runner",
+        "src:collector",
+        "src:lab_io",
+        "src:policy_notes"
+      ]
+    },
+    {
+      "id": "constraint:min_interval",
+      "type": "Constraint",
+      "label": "SYNTHETIC DEMO: min interval",
+      "evidence_refs": [
+        "src:policy_notes"
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "id": "edge:plc_exposes_sp",
+      "type": "EXPOSES",
+      "source": "component:plc",
+      "target": "point:level_sp",
+      "evidence_refs": [
+        "src:modbus_driver",
+        "src:point_api"
+      ]
+    },
+    {
+      "id": "edge:sp_maps_variable",
+      "type": "MAPS_TO",
+      "source": "point:level_sp",
+      "target": "var:level_sp",
+      "evidence_refs": [
+        "src:active_st",
+        "src:modbus_driver",
+        "src:point_api"
+      ]
+    },
+    {
+      "id": "edge:sp_host",
+      "type": "HOSTED_BY",
+      "source": "var:level_sp",
+      "target": "component:plc",
+      "evidence_refs": [
+        "src:active_st"
+      ]
+    },
+    {
+      "id": "edge:run_host",
+      "type": "HOSTED_BY",
+      "source": "var:run",
+      "target": "component:plc",
+      "evidence_refs": [
+        "src:active_st"
+      ]
+    },
+    {
+      "id": "edge:estop_host",
+      "type": "HOSTED_BY",
+      "source": "var:e_stop",
+      "target": "component:simulator",
+      "evidence_refs": [
+        "src:collector",
+        "src:lab_io"
+      ]
+    },
+    {
+      "id": "edge:sp_loop",
+      "type": "IN_LOOP",
+      "source": "var:level_sp",
+      "target": "loop:level",
+      "evidence_refs": [
+        "src:active_st"
+      ]
+    },
+    {
+      "id": "edge:applies_encoding_range",
+      "type": "APPLIES_TO",
+      "source": "constraint:encoding_range",
+      "target": "var:level_sp",
+      "evidence_refs": [
+        "src:active_st",
+        "src:point_api",
+        "src:policy_notes"
+      ]
+    },
+    {
+      "id": "edge:applies_step_limit",
+      "type": "APPLIES_TO",
+      "source": "constraint:step_limit",
+      "target": "var:level_sp",
+      "evidence_refs": [
+        "src:qualification_runner",
+        "src:qualification_config",
+        "src:policy_notes"
+      ]
+    },
+    {
+      "id": "edge:applies_run_required",
+      "type": "APPLIES_TO",
+      "source": "constraint:run_required",
+      "target": "loop:level",
+      "evidence_refs": [
+        "src:active_st",
+        "src:modbus_driver",
+        "src:policy_notes"
+      ]
+    },
+    {
+      "id": "edge:applies_e_stop_clear",
+      "type": "APPLIES_TO",
+      "source": "constraint:e_stop_clear",
+      "target": "loop:level",
+      "evidence_refs": [
+        "src:qualification_runner",
+        "src:collector",
+        "src:lab_io",
+        "src:policy_notes"
+      ]
+    },
+    {
+      "id": "edge:applies_min_interval",
+      "type": "APPLIES_TO",
+      "source": "constraint:min_interval",
+      "target": "var:level_sp",
+      "evidence_refs": [
+        "src:policy_notes"
+      ]
+    },
+    {
+      "id": "edge:requires_step_limit",
+      "type": "REQUIRES",
+      "source": "constraint:step_limit",
+      "target": "var:level_sp",
+      "evidence_refs": [
+        "src:qualification_runner",
+        "src:qualification_config",
+        "src:policy_notes"
+      ]
+    },
+    {
+      "id": "edge:requires_run_required",
+      "type": "REQUIRES",
+      "source": "constraint:run_required",
+      "target": "var:run",
+      "evidence_refs": [
+        "src:active_st",
+        "src:modbus_driver",
+        "src:policy_notes"
+      ]
+    },
+    {
+      "id": "edge:requires_e_stop_clear",
+      "type": "REQUIRES",
+      "source": "constraint:e_stop_clear",
+      "target": "var:e_stop",
+      "evidence_refs": [
+        "src:qualification_runner",
+        "src:collector",
+        "src:lab_io",
+        "src:policy_notes"
+      ]
+    }
+  ],
+  "graph_version": "lvsp-demo-v1"
+}

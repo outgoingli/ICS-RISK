@@ -1,0 +1,118 @@
+{
+  "schema_version": "1",
+  "graph_version": "lvsp-demo-v1",
+  "runtime_sha256": "1b9344af20966f0e6e812a50694028e37eb956c6add4858fe1f6b5f55cc22e72",
+  "runtime_artifact": "SYNTHETIC_active_st.txt",
+  "runtime_assurance": "Synthetic fixture digest only; no current or historical deployment identity claim",
+  "quality": {
+    "max_age_seconds": 2,
+    "max_span_seconds": 0.9,
+    "evidence_refs": [
+      "src:qualification_config",
+      "src:qualification_runner",
+      "src:policy_notes"
+    ],
+    "semantics": "PLC sequential-row age since row start and total row span; each PLC signal retains this common observation window",
+    "source_scope": "PLC sequential sample only; simulator state uses its explicit per-signal age bound"
+  },
+  "representation": {
+    "engineering_raw_tolerance": "1e-12",
+    "unit": "percent",
+    "engineering_to_raw_quantization": "unverified",
+    "evidence_refs": [
+      "src:inverse_scaling",
+      "src:policy_notes"
+    ]
+  },
+  "points": {
+    "point:level_sp": {
+      "component_ref": "component:plc",
+      "variable_ref": "var:level_sp",
+      "loop_ref": "loop:level",
+      "scada_point_id": 21,
+      "data_source_id": 1,
+      "protocol": "modbus_tcp",
+      "unit": 1,
+      "offset": 1028,
+      "register_kind": "holding",
+      "plc_symbol": "%MW4",
+      "data_type": "uint16",
+      "scale": {
+        "numerator": 100,
+        "denominator": 65535,
+        "additive": 0,
+        "unit": "percent"
+      },
+      "required_constraint_refs": [
+        "constraint:encoding_range",
+        "constraint:step_limit",
+        "constraint:run_required",
+        "constraint:e_stop_clear",
+        "constraint:min_interval"
+      ],
+      "evidence_refs": [
+        "src:active_st",
+        "src:modbus_driver",
+        "src:point_api"
+      ]
+    }
+  },
+  "signals": {
+    "var:level_sp": {
+      "unit": "raw_count",
+      "source": "plc",
+      "protocol": "modbus_tcp",
+      "function_code": 3,
+      "unit_id": 1,
+      "offset": 1028,
+      "count": 1,
+      "data_type": "uint16",
+      "plc_symbol": "%MW4",
+      "evidence_refs": [
+        "src:active_st",
+        "src:modbus_driver",
+        "src:lab_io"
+      ],
+      "component_ref": "component:plc"
+    },
+    "var:run": {
+      "unit": "boolean",
+      "source": "plc",
+      "protocol": "modbus_tcp",
+      "function_code": 1,
+      "unit_id": 1,
+      "offset": 40,
+      "count": 1,
+      "plc_symbol": "%QX5.0",
+      "normalization": "protocol bit 0/1 converted explicitly to JSON false/true",
+      "evidence_refs": [
+        "src:active_st",
+        "src:modbus_driver",
+        "src:lab_io"
+      ],
+      "component_ref": "component:plc"
+    },
+    "var:e_stop": {
+      "unit": "boolean",
+      "source": "simulator",
+      "protocol": "simulator_json",
+      "json_path": "data.state.e_stop",
+      "normalization": "preserve JSON boolean and its original simulator observation time",
+      "evidence_refs": [
+        "src:lab_io",
+        "src:collector",
+        "src:policy_notes",
+        "src:qualification_runner"
+      ],
+      "max_age_seconds": 12,
+      "age_semantics": "Prototype: evaluation_at minus original simulator observation time, nonnegative and at most 12 seconds. Legacy: row.end minus simulator.end in [-2,12]. Future observations are rejected in this prototype.",
+      "component_ref": "component:simulator"
+    }
+  },
+  "bundle_profile": "synthetic_demo",
+  "execution_binding": {
+    "plc_host": "plc.example.invalid",
+    "point_id": 21,
+    "unit": 1
+  }
+}

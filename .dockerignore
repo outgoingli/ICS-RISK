@@ -1,0 +1,7 @@
+.git
+runtime
+private
+.env
+.env.*
+__pycache__
+tests

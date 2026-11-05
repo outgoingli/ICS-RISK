@@ -1,0 +1,5 @@
+SYNTHETIC DEMONSTRATION FIXTURE ONLY
+
+Synthetic protocol mapping declaration: holding offset 1028 corresponds to %MW4; coil offset 40 corresponds to the run variable. These are fixture mappings, not verified deployment addresses.
+
+Not historical deployment evidence. Do not use this bundle for real command authorization.

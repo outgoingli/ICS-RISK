@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>ICS-RISK · 指令风险评估</title><link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <header><div><span class="eyebrow">ICS-RISK / RESEARCH WORKBENCH</span><h1>工控指令风险评估</h1><p>从图谱中的控制语义，追溯每一项执行前约束。</p></div><span id="health" class="badge">正在连接</span></header>
+  <main>
+    <div class="notice"><strong>当前范围：LevelSP 写请求的执行前约束评估。</strong>系统不下发 PLC 指令、不预测过程轨迹；通过约束不等于证明物理安全。<div id="bundle-profile">正在核实数据配置类型。</div></div>
+    <div class="toolbar"><label>访问令牌（仅服务启用认证时）<input id="token" type="password" autocomplete="off" placeholder="仅保存在当前页面内存中"></label><button id="connect" class="secondary">连接 / 刷新</button><span id="backend"></span></div>
+    <section><div class="section-title"><div><span class="eyebrow">01 / KNOWLEDGE GRAPH</span><h2>图谱与评估依赖</h2></div><span id="graph-version" class="muted"></span></div><p class="muted">图内保留对象、关系与证据引用。当前值、阈值和完整历史保存在图外。</p><div id="graph" class="graph" role="img" aria-label="图谱节点关系"></div><details><summary>查看全部关系与证据引用</summary><div class="table-wrap"><table><thead><tr><th>起点</th><th>关系</th><th>终点</th><th>证据引用</th></tr></thead><tbody id="edges"></tbody></table></div></details></section>
+    <section><div class="section-title"><div><span class="eyebrow">02 / ASSESSMENT INPUT</span><h2>候选请求与观测输入</h2></div><button id="load-example" class="secondary">载入示例</button></div><p id="example-notice" class="muted">输入 command、snapshot、history 与 graph_version。候选值不会写入实测快照。</p><label for="request" class="sr-only">评估请求 JSON</label><textarea id="request" spellcheck="false" rows="16"></textarea><div class="actions"><button id="evaluate">评估这条请求</button><span id="message" role="status" aria-live="polite"></span></div></section>
+    <section id="result-section" hidden><div class="section-title"><div><span class="eyebrow">03 / ASSESSMENT RESULT</span><h2>逐项结果与完整性</h2></div><span id="decision" class="badge"></span></div><p id="record-ref" class="muted"></p><div id="completeness" class="notice"></div><div class="table-wrap"><table><thead><tr><th>约束</th><th>类别 / 模板</th><th>结果</th><th>量化结果</th><th>原因</th></tr></thead><tbody id="constraints"></tbody></table></div><details open><summary>图谱查询路径</summary><pre id="trace"></pre></details><details><summary>证据和输入问题</summary><pre id="evidence"></pre></details><details><summary>完整评估记录</summary><pre id="raw-result"></pre></details></section>
+    <section><div class="section-title"><div><span class="eyebrow">04 / AUDIT RECORDS</span><h2>最近评估记录</h2></div><button id="refresh-records" class="secondary">刷新记录</button></div><p class="muted">记录包含评估输入、所用图版本、查询路径和结果。点击记录可回看；不会重新执行操作。</p><div id="records"></div></section>
+  </main><footer>可追溯的约束评估原型 · 不完整信息明确保留为未知</footer><script src="/app.js"></script>
+</body></html>

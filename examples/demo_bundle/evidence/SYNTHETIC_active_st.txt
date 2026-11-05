@@ -1,0 +1,5 @@
+SYNTHETIC DEMONSTRATION FIXTURE ONLY
+
+Synthetic control-program declaration: UINT16 level_sp belongs to the demo PLC and is used by the demo liquid-level loop. Demo run=false prevents adoption of automatic output; it does not prevent register receipt.
+
+Not historical deployment evidence. Do not use this bundle for real command authorization.

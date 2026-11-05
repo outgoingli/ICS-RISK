@@ -1,0 +1,5 @@
+SYNTHETIC DEMONSTRATION FIXTURE ONLY
+
+Synthetic demonstration policy: all sources in this bundle are artificial fixtures. Range, max_delta and two prerequisites are testable demonstration rules. Minimum-operation-interval parameter remains absent, disabled and unverified. Passing checks never authorize real execution or establish physical safety.
+
+Not historical deployment evidence. Do not use this bundle for real command authorization.

@@ -1,0 +1,49 @@
+{
+  "command": {
+    "id": "SYNTHETIC_DEMO_LEVELSP_WRITE",
+    "action": "write",
+    "point_id": "point:level_sp",
+    "value": "44.49988555733577477683680476081483176928",
+    "raw": 29163,
+    "unit": "percent",
+    "evaluation_at": 1000
+  },
+  "snapshot": {
+    "graph_version": "lvsp-demo-v1",
+    "runtime_sha256": "1b9344af20966f0e6e812a50694028e37eb956c6add4858fe1f6b5f55cc22e72",
+    "captured_at": 999.6,
+    "signals": {
+      "var:level_sp": {
+        "observed_at": 999.5,
+        "available_at": 999.6,
+        "span_seconds": "0.1",
+        "quality": "good",
+        "value": 28835,
+        "unit": "raw_count"
+      },
+      "var:run": {
+        "observed_at": 999.5,
+        "available_at": 999.6,
+        "span_seconds": "0.1",
+        "quality": "good",
+        "value": true,
+        "unit": "boolean"
+      },
+      "var:e_stop": {
+        "observed_at": 999,
+        "available_at": 999.1,
+        "span_seconds": "0.1",
+        "quality": "good",
+        "value": false,
+        "unit": "boolean"
+      }
+    }
+  },
+  "history": {
+    "complete": false,
+    "coverage_start": 900,
+    "coverage_end": 1000,
+    "events": []
+  },
+  "graph_version": "lvsp-demo-v1"
+}

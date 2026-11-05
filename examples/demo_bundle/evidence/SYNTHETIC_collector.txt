@@ -1,0 +1,5 @@
+SYNTHETIC DEMONSTRATION FIXTURE ONLY
+
+Synthetic collector specification: simulator e_stop is independently observed and may be cached. Preserve its original observation and availability time.
+
+Not historical deployment evidence. Do not use this bundle for real command authorization.

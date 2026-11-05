@@ -1,0 +1,5 @@
+SYNTHETIC DEMONSTRATION FIXTURE ONLY
+
+Synthetic representation specification: raw-to-percent scaling is known. Arbitrary engineering-to-raw integer quantization remains unverified; no rounding policy may be inferred.
+
+Not historical deployment evidence. Do not use this bundle for real command authorization.

@@ -1,0 +1,92 @@
+{
+  "schema_version": "1",
+  "rules": [
+    {
+      "id": "constraint:encoding_range",
+      "template": "range",
+      "enabled": true,
+      "category": "implementation_limit",
+      "verification": "verified",
+      "evidence_refs": [
+        "src:active_st",
+        "src:point_api",
+        "src:policy_notes"
+      ],
+      "parameters": {
+        "lower": 0,
+        "upper": 100,
+        "unit": "percent"
+      },
+      "verified_parameters_sha256": "e3e417769e874470d333c3d17aee87d331c59aaf25da512a41e4441c29880dd7"
+    },
+    {
+      "id": "constraint:step_limit",
+      "template": "max_delta",
+      "enabled": true,
+      "category": "research_requirement",
+      "verification": "verified",
+      "evidence_refs": [
+        "src:qualification_runner",
+        "src:qualification_config",
+        "src:policy_notes"
+      ],
+      "parameters": {
+        "limit_raw": 328,
+        "reference_signal": "var:level_sp"
+      },
+      "verified_parameters_sha256": "a3978057c98e774051fcd645317c217c2fc78bcd2ed98bcdb65270c0e1b76a34"
+    },
+    {
+      "id": "constraint:run_required",
+      "template": "precondition",
+      "enabled": true,
+      "category": "implementation_limit",
+      "verification": "verified",
+      "evidence_refs": [
+        "src:active_st",
+        "src:modbus_driver",
+        "src:policy_notes"
+      ],
+      "parameters": {
+        "signal": "var:run",
+        "operator": "eq",
+        "expected": true
+      },
+      "verified_parameters_sha256": "987636c10d4d7224d816a9964f3746f964506775ae609b74c6a3e0d78377b771"
+    },
+    {
+      "id": "constraint:e_stop_clear",
+      "template": "precondition",
+      "enabled": true,
+      "category": "research_requirement",
+      "verification": "verified",
+      "evidence_refs": [
+        "src:qualification_runner",
+        "src:collector",
+        "src:lab_io",
+        "src:policy_notes"
+      ],
+      "parameters": {
+        "signal": "var:e_stop",
+        "operator": "eq",
+        "expected": false
+      },
+      "verified_parameters_sha256": "2e7dbcc7d68fd2c5204f9ba1fa5c3d47dec3029611abb2a40c354a4fe56d835a"
+    },
+    {
+      "id": "constraint:min_interval",
+      "template": "min_interval",
+      "enabled": false,
+      "category": "research_requirement",
+      "verification": "unverified",
+      "evidence_refs": [
+        "src:policy_notes"
+      ],
+      "parameters": {
+        "seconds": null,
+        "point_ref": "point:level_sp"
+      },
+      "verified_parameters_sha256": "c0955bc72d235c42ef46f394411cc3b1750712e1238de331d5866e9a24f9f9ad"
+    }
+  ]
+}

@@ -1,0 +1,5 @@
+SYNTHETIC DEMONSTRATION FIXTURE ONLY
+
+Synthetic point declaration: point:level_sp is a settable unsigned16 holding point, unit 1, offset 1028, scaling raw*100/65535 percent. No live SCADA observation is claimed.
+
+Not historical deployment evidence. Do not use this bundle for real command authorization.

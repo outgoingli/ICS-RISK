@@ -1,0 +1,5 @@
+SYNTHETIC DEMONSTRATION FIXTURE ONLY
+
+Synthetic signal specification: level_sp and run originate from one sequential PLC row; e_stop belongs to the simulator. No real endpoint or executable acquisition code is included.
+
+Not historical deployment evidence. Do not use this bundle for real command authorization.

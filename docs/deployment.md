@@ -1,0 +1,61 @@
+# 部署与维护
+
+## 数据与代码
+
+GitHub 维护应用代码、测试、合成演示和文档。现场代码目录与私有证据、环境变量、记录目录分别管理。不要向公开仓库提交 `.env`、登录信息、真实采集日志或第三方原始代码归档。
+
+建议目录：
+
+```text
+ICS-RISK/                 Git 工作副本
+ICS-RISK-private/
+  lab_bundle/config/      graph / bindings / constraints / provenance
+  lab_bundle/evidence/    本地核实的证据副本
+  normal_02_request.json  历史回放输入（保留原时戳）
+  service.env             仅当前用户可读的服务配置
+  records/                每次评估的输入、结果、证据路径
+```
+
+## 连接现有数据库
+
+先核对目标数据库版本、旧节点/关系计数以及部署程序身份。当前HTTP适配器针对 Neo4j 5.20 已设计，不需要替换或重启现有数据库。使用独立 `ICS_RISK_NEO4J_SCOPE`，不要导入到旧图的命名范围。
+
+在授权账户的环境中提供 `.env.example` 所列变量；这份示例不包含凭据。CLI 不自动读取文件，部署工具需要显式提供环境。
+
+```sh
+python -m ics_risk --bundle /private/lab_bundle validate
+python -m ics_risk --bundle /private/lab_bundle publish-graph
+python -m ics_risk --bundle /private/lab_bundle --backend neo4j query
+python -m ics_risk --bundle /private/lab_bundle --backend neo4j evaluate --input /private/normal_02_request.json
+```
+
+发布后读取图摘要及12节点14关系，重复发布应返回 unchanged。不要为了测试而删除线上边；缺边/数据库异常等情况在临时测试夹具验证。
+
+## 常驻服务
+
+仓库提供 Dockerfile；现场也可用独立服务管理器运行主机 Python。容器镜像不包含真实证据或凭据。
+
+```sh
+docker build -t ics-risk:0.1.0 .
+docker run -d --name ics-risk-app --restart unless-stopped \
+  --network host --read-only --cap-drop ALL --security-opt no-new-privileges \
+  --tmpfs /tmp:rw,noexec,nosuid,size=16m \
+  --env-file /private/service.env \
+  -v /private/lab_bundle:/data/bundle:ro \
+  -v /private/normal_02_request.json:/data/example.json:ro \
+  -v /private/records:/data/records:rw \
+  ics-risk:0.1.0 serve
+```
+
+环境中将 bundle/records/example 路径设为容器内对应路径，服务监听127.0.0.1:18081。镜像以UID/GID 1000运行；部署时根据实际账户匹配记录目录权限，可用`--user`覆盖。`--network host` 示例适用于 Linux 仿真主机。
+
+通过已经授权且验证主机密钥的SSH会话转发18081端口，再在本机打开 `http://127.0.0.1:18081`。本地和远端端口保持一致；服务校验 Host 和 Origin。不要直接把未配置令牌的服务暴露到公网。显式非本地监听必须设置 `ICS_RISK_API_TOKEN`，浏览器输入令牌仅保留在页面内存。
+
+## 更新与回滚
+
+1. 修改代码并跑完整测试；检查公开文件不包含私有证据或凭据，提交 Git。
+2. 按已审阅提交构建新的应用镜像。先验证图谱读回、历史回放判定和健康接口。
+3. 仅替换 `ics-risk-app` 应用容器，保留原镜像标签及证据/记录目录供回滚。不操作 PLC、SCADA、仿真器或原保护进程。
+4. 规则或图结构变更必须采用新版本，并同步审核绑定和证据；不得复用旧版本改内容。
+
+健康接口表示图后端可读取，不代表所有输入和约束完备，更不代表现场安全。页面中的历史请求用于演示评估流程，不会重新发出控制指令。
