@@ -59,3 +59,15 @@ docker run -d --name ics-risk-app --restart unless-stopped \
 4. 规则或图结构变更必须采用新版本，并同步审核绑定和证据；不得复用旧版本改内容。
 
 健康接口表示图后端可读取，不代表所有输入和约束完备，更不代表现场安全。页面中的历史请求用于演示评估流程，不会重新发出控制指令。
+
+## 服务器不能直接访问 GitHub 时
+
+不要改动全局网络配置来迁就一次部署。可从已推送的本地仓库创建 Git bundle，经已授权 SSH 传到私有部署目录，再在服务器工作副本读取它；提交身份保持一致。
+
+```sh
+git bundle create ICS-RISK.bundle main
+# 将 bundle 传至服务器后，在目标 Git 工作副本中执行：
+git fetch /private/ICS-RISK.bundle main:refs/remotes/origin/main
+```
+
+更新工作树前检查现有修改，按已审核提交部署；不要覆盖未知用户改动。部署后记录提交ID、镜像身份、图版本、回放结果。此流程属于手动维护，不是已配置的 GitHub 自动部署流水线。

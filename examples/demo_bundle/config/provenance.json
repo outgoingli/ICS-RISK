@@ -4,70 +4,70 @@
     {
       "id": "src:active_st",
       "path": "evidence/SYNTHETIC_active_st.txt",
-      "sha256": "1b9344af20966f0e6e812a50694028e37eb956c6add4858fe1f6b5f55cc22e72",
+      "sha256": "3dc87098633598fde020cd0e763277d759e44b6f4469c98c864df7d15137b6da",
       "locator": "Entire synthetic declaration",
       "kind": "synthetic_demo_only"
     },
     {
       "id": "src:modbus_driver",
       "path": "evidence/SYNTHETIC_modbus_driver.txt",
-      "sha256": "880d5f8734873d83db443ffef7ac16c52bce6e03691d337ee7520e113e42cd38",
+      "sha256": "753c32a2bb611f88d803a94912801b617411f9fd0a87291226595c3cb5ac6c21",
       "locator": "Entire synthetic declaration",
       "kind": "synthetic_demo_only"
     },
     {
       "id": "src:qualification_config",
       "path": "evidence/SYNTHETIC_qualification_config.txt",
-      "sha256": "d280d7af0c873cae9a94072848848430cdc241b1fd29453217db7524a55e461e",
+      "sha256": "d76b74f3c8bd54736f1bad1d47fbaf1ecd4f39ca8ade0cdd2f4f2309ea671b2f",
       "locator": "Entire synthetic declaration",
       "kind": "synthetic_demo_only"
     },
     {
       "id": "src:qualification_runner",
       "path": "evidence/SYNTHETIC_qualification_runner.txt",
-      "sha256": "39e67cf7c5930134258c7bd022f7a131c424e913a4d2dd22698e481b752d4395",
+      "sha256": "cd045763a367cbe64644ccfad04220ebb3b214dc8028c72a5b0a7c0ca478f073",
       "locator": "Entire synthetic declaration",
       "kind": "synthetic_demo_only"
     },
     {
       "id": "src:collector",
       "path": "evidence/SYNTHETIC_collector.txt",
-      "sha256": "cc56b3f85e72d7711892af3c238c6337fb431caefec7ae685e820c0539b1456a",
+      "sha256": "6843a28318b0cdbc144289a7d016548f289b46be99ed9b95eabfe34ad014b6b3",
       "locator": "Entire synthetic declaration",
       "kind": "synthetic_demo_only"
     },
     {
       "id": "src:lab_io",
       "path": "evidence/SYNTHETIC_lab_io.txt",
-      "sha256": "5a0d077375c5509c4d989d136e0ecb1fa4b1ed502d5ebcfd0529d38b3da9fee0",
+      "sha256": "3f80e96a2e2e8aa01515290a7bbfd29fcc7890ba77b66a205abcf559ff2cef0f",
       "locator": "Entire synthetic declaration",
       "kind": "synthetic_demo_only"
     },
     {
       "id": "src:point_api",
       "path": "evidence/SYNTHETIC_point_api.txt",
-      "sha256": "8a7aaf2fb4cc62854de04c73682e8d9c7c4efd12236236db2281c7885dea819d",
+      "sha256": "f87807e3afd17b8985f56224b81612ca0c1b31670c1d8e18c958700bea92d1b6",
       "locator": "Entire synthetic declaration",
       "kind": "synthetic_demo_only"
     },
     {
       "id": "src:implementation_manifest",
       "path": "evidence/SYNTHETIC_implementation_manifest.txt",
-      "sha256": "09349abced76b180a6f3e7e86bc22fbbed6c76199ca5b7314f1c975c5d15da12",
+      "sha256": "caa775c70accef1578d20b488312838f622a7ec5d1a75729546abcb3b1910b84",
       "locator": "Entire synthetic declaration",
       "kind": "synthetic_demo_only"
     },
     {
       "id": "src:inverse_scaling",
       "path": "evidence/SYNTHETIC_inverse_scaling.txt",
-      "sha256": "3410702df70a545e3edd2e0287aaa0cebba2b284fa218dc0bf633c060ed89513",
+      "sha256": "5fe6bc96a63874b7b8805da507c940cb617b6e1c504556724802bcf30b5b6296",
       "locator": "Entire synthetic declaration",
       "kind": "synthetic_demo_only"
     },
     {
       "id": "src:policy_notes",
       "path": "evidence/SYNTHETIC_policy_notes.txt",
-      "sha256": "f21a5d44e46a66d6a0eab38762295a13dad73849ccbe13aff5bb8843dffaba8f",
+      "sha256": "3aa6cd07b0db5860272e24e3e7829079de2c67d888a123a88c1beacd2ef054ec",
       "locator": "Entire synthetic declaration",
       "kind": "synthetic_demo_only"
     }

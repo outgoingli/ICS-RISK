@@ -12,7 +12,7 @@
     },
     "snapshot": {
       "graph_version": "lvsp-demo-v1",
-      "runtime_sha256": "1b9344af20966f0e6e812a50694028e37eb956c6add4858fe1f6b5f55cc22e72",
+      "runtime_sha256": "3dc87098633598fde020cd0e763277d759e44b6f4469c98c864df7d15137b6da",
       "captured_at": 999.6,
       "signals": {
         "var:level_sp": {
